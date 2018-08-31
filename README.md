@@ -20,7 +20,7 @@ All sending of payloads is subject to *backpressure*, which is tracked on a per-
 
 Responses, creation of a sink/stream/duplex, closing of a response, and closing of a non-duplex stream consume top-level credit. Closing a duplex stream consumes credit on the corresponding sink.
 
-Communication must work even if only a single byte of credit is given at once. Implementations of the bpmux abstracts must thus include a mechanism to split up payloads into arbitrarily fine parts. Everything else would be prone to deadlocks.
+Communication must work even if only a single byte of credit is given at once. Implementations of the bpmux abstract specification must thus include a mechanism to split up payloads into arbitrarily fine parts. Everything else would be prone to deadlocks.
 
 Note that credit-based backpressure only throttles payload data, not meta data (such as giving credit or the metadata necessary for splitting up payloads). Otherwise, there would be deadlocks where neither endpoint has enough credit to grant more credit to the other endpoint. The backpressure mechanism this does not prevent a malicious peer from spamming the connection, e.g. by granting a lot of credit one byte at a time, or simply by sending an arbitrary number of zero-length messages. Dealing with malicious peers is out of scope for bpmux.
 
