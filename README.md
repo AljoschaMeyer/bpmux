@@ -22,11 +22,9 @@ Responses, creation of a sink/stream/duplex, closing of a response, and closing 
 
 Communication must work even if only a single byte of credit is given at once. Implementations of the bpmux abstracts must thus include a mechanism to split up payloads into arbitrarily fine parts. Everything else would be prone to deadlocks.
 
-As an optimization, an implementation of the bpmux abstractions may allow to specify initial credit when opening a stream/duplex. Conceptually this is the same as opening it and then giving some credit to it.
-
 Note that credit-based backpressure only throttles payload data, not meta data (such as giving credit or the metadata necessary for splitting up payloads). Otherwise, there would be deadlocks where neither endpoint has enough credit to grant more credit to the other endpoint. The backpressure mechanism this does not prevent a malicious peer from spamming the connection, e.g. by granting a lot of credit one byte at a time, or simply by sending an arbitrary number of zero-length messages. Dealing with malicious peers is out of scope for bpmux.
 
-For each stream (including the top-level), a peer may send a *heartbeat ping* at any time. The other peer should then respond with a *heartbeat pong*. If the heartbeat pong does not arrive after a sensible time, the stream can be considered broken. For resilience, implementations should still send a cancellation to a stream that has timed out. Heartbeats do not consume any credit. Many applications will only require hearbeats for the top-level, but they are supported for arbitrary streams.
+For any stream (including the top-level) and for any unanswered request, a peer may send a *heartbeat ping* at any time. The other peer should then respond with a corresponding *heartbeat pong*. If the heartbeat pong does not arrive after a sensible time, the stream/request can be considered broken. For resilience, implementations should still send a cancellation to a stream/request that has timed out. Heartbeats do not consume any credit.
 
 ## Protocols Implementing the Abstractions
 
