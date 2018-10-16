@@ -16,9 +16,9 @@ Any duplexes (including the top-level) support both cancellation and closing, th
 
 An implementation of the bpmux abstractions is free to place upper limits on the number of sinks, streams, duplexes and requests that can coexist at the same time. It is recommended to support at least `2^32 - 1` concurrent ones. If there is a limit, the programming interfaces should be able to signal when the limit is hit, and applications should correctly handle this case.
 
-All sending of payloads is subject to *backpressure*, which is tracked on a per-stream basis (including the top-level). At any time, one peer can give some *credit* to a stream. Sending messages/requests/sink-cancellations down a sink consumes as much credit as the size of the payload. If the credit on a sink reaches zero, no more data can be sent to it, until the peer has given more credit to it. If a peer receives more data on a channel than it gave credit for, it must immediately close the connection. Credit is capped at `2^64 - 1`, if an endpoint receives more than `2^64 - 1` credit on a single sink, it must immediately close the connection.
+All sending of payloads is subject to *backpressure*, which is tracked separately for each sink/stream/request/response (entity). At any time, a peer can add some *credit* to a one of those, up to a maximum of `2^64 - 1` (if an endpoint receives more than `2^64 - 1` credit on a single entity, it must immediately close the connection). Sending payloads to an entity consumes as much credit as the size of the payload in bytes. If the credit on an entity reaches zero, no more data can be sent to it, until the peer has given more credit to it. If a peer receives more payload data for an entity than it handed out credit, it must immediately close the connection.
 
-Request-cancellations, Responses, creation of a sink/stream/duplex, closing of a response, and closing of a non-duplex stream consume top-level credit. Closing a duplex stream consumes credit on the corresponding sink.
+Note that even on a sink (where an endpoint doesn't intend to regularly reeive data), it should give some credit to the peer to allow it to cancel it with a payload. But even if no credit is given, it is always possible to cancel with a zero-length payload.
 
 Communication must work even if only a single byte of credit is given at once. Implementations of the bpmux abstract specification must thus include a mechanism to split up payloads into arbitrarily fine parts. Everything else would be prone to deadlocks.
 
@@ -28,4 +28,4 @@ For any stream (including the top-level) and for any not-yet-received response, 
 
 ## Protocols Implementing the Abstractions
 
-- [bpmux-rel](https://github.com/AljoschaMeyer/bpmux-rel) (reliable, ordered, bidirectional communication channels)
+- [bpmux-rel](https://github.com/AljoschaMeyer/bpmux-rel): bpmux overreliable, ordered, bidirectional communication channels
