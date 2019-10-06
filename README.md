@@ -1,5 +1,7 @@
 # bpmux
 
+**Status: Deprecated in favor of https://github.com/AljoschaMeyer/bymux. Don't use this!**
+
 bpmux is a family of protocols for multiplexing messages, requests/responses and duplex streams over a single logical connection between to endpoints. It supports backpressure on all (non-meta) data, and it supports heartbeat pings (that can correctly [work over tcp](http://250bpm.com/blog:22)). Each protocol of the family implements the bpmux abstractions over a specific kind of connection (e.g. udp, dccp, sctp, reliable ordered connections like tcp, etc.).
 
 ## Abstractions
